@@ -37,6 +37,12 @@ var (
 		Short: "dummy",
 		Run:   runDummy,
 	}
+
+	installEnvs = []string{
+		"K3S_NODE_NAME=alpha",
+		"K3S_KUBECONFIG_OUTPUT=/home/pi/.kube/config",
+		"K3S_KUBECONFIG_MODE=777",
+	}
 )
 
 //go:embed k3s-install.sh
@@ -85,7 +91,7 @@ func install() error {
 		return err
 	}
 
-	return executeAndAttach("bash", "-c", tmpfileLocation)
+	return executeAndAttach("bash", []string{"-c", tmpfileLocation}, installEnvs)
 }
 
 func runInstall(cmd *cobra.Command, args []string) {
@@ -93,12 +99,12 @@ func runInstall(cmd *cobra.Command, args []string) {
 }
 
 func runUninstall(cmd *cobra.Command, args []string) {
-	utils.Check(executeAndAttach("k3s-uninstall.sh"))
+	utils.Check(executeAndAttach("k3s-uninstall.sh", nil, nil))
 }
 
 func runDummy(cmd *cobra.Command, args []string) {
-	utils.Check(executeAndAttach("bash", "-c", "for i in {1..10}; do echo ${i}; sleep 1; done"))
+	utils.Check(executeAndAttach("bash", []string{"-c", "for i in {1..10}; do echo ${i}; sleep 1; done"}, nil))
 	fmt.Println("normal stdout")
-	utils.Check(executeAndAttach("bash", "-c", "for i in {20..30}; do echo ${i}; sleep 1; done"))
+	utils.Check(executeAndAttach("bash", []string{"-c", "for i in {20..30}; do echo ${i}; sleep 1; done"}, nil))
 	fmt.Println("normal stdout 2")
 }
