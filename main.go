@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
-	"os/exec"
+	// "os/exec"
 	// "io/fs"
 )
 
@@ -31,14 +31,21 @@ var (
 		Short: "uninstall",
 		Run:   runUninstall,
 	}
+
+	dummyCmd = &cobra.Command{
+		Use:   "dummy",
+		Short: "dummy",
+		Run:   runDummy,
+	}
 )
 
 //go:embed k3s-install.sh
 var installFile embed.FS
 
 func init() {
-  rootCmd.AddCommand(installCmd)
-  rootCmd.AddCommand(uninstallCmd)
+	rootCmd.AddCommand(installCmd)
+	rootCmd.AddCommand(uninstallCmd)
+	rootCmd.AddCommand(dummyCmd)
 }
 
 func main() {
@@ -78,35 +85,21 @@ func install() error {
 		return err
 	}
 
-	cmd := exec.Command("bash", "-c", tmpfileLocation)
-
-	out, err := cmd.Output()
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("output: %+v\n", string(out))
-
-	return err
+	return executeAndAttach("bash", "-c", tmpfileLocation)
 }
 
-func uninstall() error {
-	cmd := exec.Command("k3s-uninstall.sh")
-
-	out, err := cmd.Output()
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("output: %+v\n", string(out))
-
-	return err
-}
 
 func runInstall(cmd *cobra.Command, args []string) {
 	utils.Check(install())
 }
 
 func runUninstall(cmd *cobra.Command, args []string) {
-	utils.Check(uninstall())
+	utils.Check(executeAndAttach("k3s-uninstall.sh"))
+}
+
+func runDummy(cmd *cobra.Command, args []string) {
+	utils.Check(executeAndAttach("bash", "-c", "for i in {1..10}; do echo ${i}; sleep 1; done"))
+	fmt.Println("normal stdout")
+	utils.Check(executeAndAttach("bash", "-c", "for i in {20..30}; do echo ${i}; sleep 1; done"))
+	fmt.Println("normal stdout 2")
 }
