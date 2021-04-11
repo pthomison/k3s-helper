@@ -12,23 +12,39 @@ import (
 )
 
 var (
-	message string
-	name    string
+	// message string
+	// name    string
 
 	rootCmd = &cobra.Command{
-		Use:   "go-helloworld",
-		Short: "go-helloworld",
-		Run:   run,
+		Use:   "k3s-helper",
+		Short: "k3s-helper",
+	}
+
+	installCmd = &cobra.Command{
+		Use:   "install",
+		Short: "install",
+		Run:   runInstall,
+	}
+
+	uninstallCmd = &cobra.Command{
+		Use:   "uninstall",
+		Short: "uninstall",
+		Run:   runUninstall,
 	}
 )
 
 //go:embed k3s-install.sh
 var installFile embed.FS
 
+func init() {
+  rootCmd.AddCommand(installCmd)
+  rootCmd.AddCommand(uninstallCmd)
+}
+
 func main() {
 
-	rootCmd.PersistentFlags().StringVarP(&message, "message", "m", "hello world", "message the program will output")
-	rootCmd.PersistentFlags().StringVarP(&name, "name", "n", "patrick", "name the program will output to")
+	// rootCmd.PersistentFlags().StringVarP(&message, "message", "m", "hello world", "message the program will output")
+	// rootCmd.PersistentFlags().StringVarP(&name, "name", "n", "patrick", "name the program will output to")
 
 	err := rootCmd.Execute()
 
@@ -72,12 +88,25 @@ func install() error {
 	fmt.Printf("output: %+v\n", string(out))
 
 	return err
-
-	// return nil
 }
 
-func run(cmd *cobra.Command, args []string) {
-	fmt.Println(message + ", " + name)
-	utils.Check(install())
+func uninstall() error {
+	cmd := exec.Command("k3s-uninstall.sh")
 
+	out, err := cmd.Output()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("output: %+v\n", string(out))
+
+	return err
+}
+
+func runInstall(cmd *cobra.Command, args []string) {
+	utils.Check(install())
+}
+
+func runUninstall(cmd *cobra.Command, args []string) {
+	utils.Check(uninstall())
 }
