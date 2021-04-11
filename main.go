@@ -88,7 +88,6 @@ func install() error {
 	return executeAndAttach("bash", "-c", tmpfileLocation)
 }
 
-
 func runInstall(cmd *cobra.Command, args []string) {
 	utils.Check(install())
 }

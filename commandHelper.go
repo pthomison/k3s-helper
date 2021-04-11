@@ -8,9 +8,9 @@ import (
 	// "io/fs"
 )
 
-func executeAndAttach(c string, args ...string) error  {
+func executeAndAttach(c string, args ...string) error {
 	cmd := exec.Command(c, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
-} 
+}
