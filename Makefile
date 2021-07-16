@@ -3,7 +3,7 @@ tidy:
 	go fmt ./...
 
 retrieve-install-script:
-	curl -sfL https://get.k3s.io > k3s-install.sh
+	curl -sfL https://get.k3s.io > ./scripts/k3s-install.sh
 
 run: tidy
 	go run ./...

@@ -48,6 +48,9 @@ var (
 //go:embed k3s-install.sh
 var installFile embed.FS
 
+//go:embed manifests/*
+var manifests embed.FS
+
 func init() {
 	rootCmd.AddCommand(installCmd)
 	rootCmd.AddCommand(uninstallCmd)
@@ -94,11 +97,45 @@ func install() error {
 	return executeAndAttach("bash", []string{"-c", tmpfileLocation}, installEnvs)
 }
 
+func coreload() {
+	data, err := manifests.ReadFile("flux.yaml")
+	if err != nil {
+		return err
+	}
+
+	tmpfile, err := ioutil.TempFile("", "k3s-install-script")
+	if err != nil {
+		return err
+	}
+
+	tmpfileLocation := tmpfile.Name()
+
+	defer os.Remove(tmpfileLocation)
+
+	err = tmpfile.Chmod(0700)
+	if err != nil {
+		return err
+	}
+
+	if _, err := tmpfile.Write(data); err != nil {
+		return err
+	}
+	if err := tmpfile.Close(); err != nil {
+		return err
+	}
+
+	return executeAndAttach("bash", []string{"-c", tmpfileLocation}, installEnvs)
+}
+
 func runInstall(cmd *cobra.Command, args []string) {
 	utils.Check(install())
 }
 
 func runUninstall(cmd *cobra.Command, args []string) {
+	utils.Check(executeAndAttach("k3s-uninstall.sh", nil, nil))
+}
+
+func runCoreLoad(cmd *cobra.Command, args []string) {
 	utils.Check(executeAndAttach("k3s-uninstall.sh", nil, nil))
 }
 
