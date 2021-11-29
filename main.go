@@ -3,12 +3,11 @@ package main
 import (
 	"embed"
 	"fmt"
-	utils "github.com/pthomison/golang-utils"
-	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
-	// "os/exec"
-	// "io/fs"
+
+	utils "github.com/pthomison/golang-utils"
+	"github.com/spf13/cobra"
 )
 
 var (
